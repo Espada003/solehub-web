@@ -2,10 +2,11 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Providers } from './providers';
 import { Navbar } from '@/components/Navbar';
+import { Footer } from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'SoleHub',
-  description: 'Online footwear and accessories store',
+  title: 'SoleHub — Footwear, considered',
+  description: 'Shoes for men and women, plus laces, polish, and socks. Shipped across Nigeria.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -14,9 +15,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Providers>
           <Navbar />
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <main>
             {children}
           </main>
+          <Footer />
         </Providers>
       </body>
     </html>

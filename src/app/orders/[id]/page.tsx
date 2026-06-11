@@ -3,8 +3,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/api';
 import type { Order } from '@/lib/types';
-import { Card, CardBody, CardHeader, Badge } from '@/components/ui';
+import { Card, CardBody, CardHeader, Badge, Eyebrow } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
+import { Container } from '@/components/Container';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { formatNGN, formatDate } from '@/lib/format';
 
@@ -35,10 +36,10 @@ function OrderDetail() {
     },
   });
 
-  if (isLoading) return <div className="text-slate-500">Loading...</div>;
+  if (isLoading) return <div className="text-ink-2">Loading...</div>;
   if (error || !order) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="text-red-700">Order not found.</div>
         <Button variant="outline" onClick={() => router.push('/orders')}>Back to orders</Button>
       </div>
@@ -46,20 +47,20 @@ function OrderDetail() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+    <div className="space-y-8">
+      <div className="flex items-center justify-between flex-wrap gap-4 pb-6 border-b border-rule">
         <div>
-          <div className="text-xs text-slate-500">Order ID</div>
-          <div className="font-mono">{order.id}</div>
+          <Eyebrow>Order</Eyebrow>
+          <div className="font-mono text-base text-ink mt-1">{order.id}</div>
         </div>
-        <Badge value={order.status} className="text-sm" />
+        <Badge value={order.status} className="text-xs" />
       </div>
 
       {order.status === 'PENDING_PAYMENT' && (
-        <Card className="border-amber-200 bg-amber-50">
+        <Card className="border-gold/30 bg-gold-tint/60">
           <CardBody className="flex items-center justify-between gap-3 flex-wrap">
-            <div className="text-amber-900 text-sm">
-              This order is awaiting payment. Click <strong>Pay now</strong> to confirm it and decrement stock.
+            <div className="text-ink text-sm">
+              <strong>Awaiting payment.</strong> Click <em>Pay now</em> to confirm the order and reserve stock.
             </div>
             <div className="flex items-center gap-2">
               <Button onClick={() => pay.mutate()} disabled={pay.isPending}>
@@ -73,28 +74,38 @@ function OrderDetail() {
         </Card>
       )}
 
-      {pay.isError && <div role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">{(pay.error as any)?.message || 'Payment failed'}</div>}
-      {cancel.isError && <div role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">{(cancel.error as any)?.message || 'Cancel failed'}</div>}
+      {pay.isError && (
+        <div role="alert" className="text-sm text-red-800 bg-red-50 border border-red-200 rounded-md p-3">
+          {(pay.error as any)?.message || 'Payment failed'}
+        </div>
+      )}
+      {cancel.isError && (
+        <div role="alert" className="text-sm text-red-800 bg-red-50 border border-red-200 rounded-md p-3">
+          {(cancel.error as any)?.message || 'Cancel failed'}
+        </div>
+      )}
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Items</h2></CardHeader>
+        <CardHeader>
+          <Eyebrow>Items</Eyebrow>
+        </CardHeader>
         <CardBody>
           <table className="w-full text-sm">
-            <thead className="text-left text-slate-500">
+            <thead className="text-left text-ink-3">
               <tr>
-                <th className="py-2">Product</th>
-                <th className="text-right">Unit price</th>
-                <th className="text-right">Qty</th>
-                <th className="text-right">Line total</th>
+                <th className="py-2 font-medium text-[11px] uppercase tracking-eyebrow">Product</th>
+                <th className="text-right font-medium text-[11px] uppercase tracking-eyebrow">Unit price</th>
+                <th className="text-right font-medium text-[11px] uppercase tracking-eyebrow">Qty</th>
+                <th className="text-right font-medium text-[11px] uppercase tracking-eyebrow">Line total</th>
               </tr>
             </thead>
             <tbody>
               {order.items?.map((it) => (
-                <tr key={it.productId} className="border-t">
-                  <td className="py-2">{it.name}</td>
-                  <td className="text-right">{formatNGN(it.unitPrice)}</td>
-                  <td className="text-right">{it.quantity}</td>
-                  <td className="text-right">{formatNGN(it.lineTotal)}</td>
+                <tr key={it.productId} className="border-t border-rule">
+                  <td className="py-3 text-ink">{it.name}</td>
+                  <td className="text-right tabular text-ink-2">{formatNGN(it.unitPrice)}</td>
+                  <td className="text-right tabular text-ink-2">{it.quantity}</td>
+                  <td className="text-right tabular text-ink font-medium">{formatNGN(it.lineTotal)}</td>
                 </tr>
               ))}
             </tbody>
@@ -104,8 +115,8 @@ function OrderDetail() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
-          <CardHeader><h2 className="font-semibold">Shipping address</h2></CardHeader>
-          <CardBody className="text-sm text-slate-700 space-y-1">
+          <CardHeader><Eyebrow>Shipping</Eyebrow></CardHeader>
+          <CardBody className="text-sm text-ink space-y-1.5">
             {order.shippingAddress ? (
               <>
                 <div>{order.shippingAddress.line1}</div>
@@ -113,19 +124,19 @@ function OrderDetail() {
                 <div>{order.shippingAddress.city}, {order.shippingAddress.state}</div>
                 {order.shippingAddress.postalCode && <div>{order.shippingAddress.postalCode}</div>}
                 <div>{order.shippingAddress.country}</div>
-                <div className="pt-2">Phone: {order.shippingAddress.phone}</div>
+                <div className="pt-2 text-ink-2">Phone: {order.shippingAddress.phone}</div>
               </>
-            ) : <div className="text-slate-500">No address on file.</div>}
+            ) : <div className="text-ink-3">No address on file.</div>}
           </CardBody>
         </Card>
         <Card>
-          <CardHeader><h2 className="font-semibold">Totals</h2></CardHeader>
-          <CardBody className="text-sm space-y-2">
-            <div className="flex justify-between"><span>Subtotal</span><span>{formatNGN(order.subtotal)}</span></div>
-            <div className="flex justify-between"><span>Tax</span><span>{formatNGN(order.tax)}</span></div>
-            <div className="flex justify-between"><span>Shipping</span><span>{formatNGN(order.shipping)}</span></div>
-            <div className="border-t pt-2 flex justify-between font-semibold text-base"><span>Grand total</span><span>{formatNGN(order.grandTotal)}</span></div>
-            <div className="text-xs text-slate-500 pt-2">
+          <CardHeader><Eyebrow>Totals</Eyebrow></CardHeader>
+          <CardBody className="text-sm space-y-2.5">
+            <div className="flex justify-between text-ink-2"><span>Subtotal</span><span className="tabular text-ink">{formatNGN(order.subtotal)}</span></div>
+            <div className="flex justify-between text-ink-2"><span>Tax</span><span className="tabular text-ink">{formatNGN(order.tax)}</span></div>
+            <div className="flex justify-between text-ink-2"><span>Shipping</span><span className="tabular text-ink">{formatNGN(order.shipping)}</span></div>
+            <div className="border-t border-rule pt-3 flex justify-between text-base font-semibold"><span>Grand total</span><span className="tabular">{formatNGN(order.grandTotal)}</span></div>
+            <div className="text-xs text-ink-3 pt-2 leading-relaxed">
               Placed: {formatDate(order.createdAt)}
               {order.paidAt && <><br />Paid: {formatDate(order.paidAt)}</>}
               {order.cancelledAt && <><br />Cancelled: {formatDate(order.cancelledAt)}</>}
@@ -140,7 +151,9 @@ function OrderDetail() {
 export default function OrderDetailPage() {
   return (
     <ProtectedRoute>
-      <OrderDetail />
+      <Container>
+        <OrderDetail />
+      </Container>
     </ProtectedRoute>
   );
 }

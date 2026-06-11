@@ -2,7 +2,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiRequestPaginated } from '@/lib/api';
 import type { PayrollRecord } from '@/lib/types';
-import { Card, CardBody, CardHeader } from '@/components/ui';
+import { Card, CardBody, CardHeader, Eyebrow, DisplayHeading } from '@/components/ui';
+import { Container } from '@/components/Container';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { formatNGN, formatDate } from '@/lib/format';
 
@@ -16,22 +17,30 @@ function MyPayrollContent() {
 
   return (
     <Card>
-      <CardHeader><h2 className="font-semibold">My payroll history</h2></CardHeader>
+      <CardHeader>
+        <Eyebrow>History</Eyebrow>
+        <div className="text-lg font-semibold mt-1 tracking-tight">All payments to date</div>
+      </CardHeader>
       <CardBody className="overflow-x-auto">
-        {isLoading ? 'Loading...' : data && data.data.length === 0 ? (
-          <div className="text-slate-500 py-4">No payroll records yet.</div>
+        {isLoading ? <div className="text-ink-2">Loading...</div> : data && data.data.length === 0 ? (
+          <div className="text-ink-3 py-4">No payroll records yet.</div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="text-left text-slate-500">
-              <tr><th className="py-2">Period</th><th className="text-right">Amount</th><th>Paid on</th><th>Notes</th></tr>
+            <thead className="text-left text-ink-3">
+              <tr>
+                <th className="py-2 font-medium text-[11px] uppercase tracking-eyebrow">Period</th>
+                <th className="text-right font-medium text-[11px] uppercase tracking-eyebrow">Amount</th>
+                <th className="font-medium text-[11px] uppercase tracking-eyebrow">Paid on</th>
+                <th className="font-medium text-[11px] uppercase tracking-eyebrow">Notes</th>
+              </tr>
             </thead>
             <tbody>
               {data?.data.map((r) => (
-                <tr key={r.id} className="border-t">
-                  <td className="py-2">{MONTHS[r.periodMonth]} {r.periodYear}</td>
-                  <td className="text-right">{formatNGN(r.amount)}</td>
-                  <td>{formatDate(r.paidAt)}</td>
-                  <td className="text-slate-600 text-xs">{r.notes || '\u2014'}</td>
+                <tr key={r.id} className="border-t border-rule">
+                  <td className="py-3 text-ink">{MONTHS[r.periodMonth]} {r.periodYear}</td>
+                  <td className="text-right tabular text-ink font-medium">{formatNGN(r.amount)}</td>
+                  <td className="text-ink-2">{formatDate(r.paidAt)}</td>
+                  <td className="text-ink-3 text-xs">{r.notes || '\u2014'}</td>
                 </tr>
               ))}
             </tbody>
@@ -45,8 +54,13 @@ function MyPayrollContent() {
 export default function MyPayrollPage() {
   return (
     <ProtectedRoute allowRoles={['STAFF', 'ACCOUNTANT', 'SUPER_ADMIN']}>
-      <h1 className="text-2xl font-semibold mb-4">My payroll</h1>
-      <MyPayrollContent />
+      <Container>
+        <div className="mb-8">
+          <Eyebrow>Compensation</Eyebrow>
+          <DisplayHeading as="h1" text="My payroll." accent="payroll" className="mt-3 text-4xl text-ink" />
+        </div>
+        <MyPayrollContent />
+      </Container>
     </ProtectedRoute>
   );
 }

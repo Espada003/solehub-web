@@ -16,55 +16,61 @@ export function Navbar() {
   };
 
   return (
-    <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="text-xl font-semibold text-brand-700">SoleHub</Link>
-          <nav className="hidden md:flex items-center gap-4 text-sm text-slate-700">
-            <Link href="/products" className="hover:text-brand-600">Products</Link>
+    <header className="bg-paper/80 backdrop-blur-md border-b border-rule sticky top-0 z-40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center gap-2 group">
+            <span className="w-2 h-2 rounded-full bg-gold transition-colors duration-150 group-hover:bg-ink" />
+            <span className="text-base font-semibold tracking-tight text-ink">SoleHub</span>
+          </Link>
+          <nav className="hidden md:flex items-center gap-6 text-sm text-ink-2">
+            <Link href="/products" className="hover:text-ink transition-colors duration-150">Products</Link>
             {user?.role === 'CUSTOMER' && (
               <>
-                <Link href="/cart" className="hover:text-brand-600">Cart</Link>
-                <Link href="/orders" className="hover:text-brand-600">My orders</Link>
+                <Link href="/cart" className="hover:text-ink transition-colors duration-150">Cart</Link>
+                <Link href="/orders" className="hover:text-ink transition-colors duration-150">My orders</Link>
               </>
             )}
             {user && (user.role === 'STAFF' || user.role === 'SUPER_ADMIN') && (
-              <Link href="/admin/products" className="hover:text-brand-600">Manage products</Link>
+              <Link href="/admin/products" className="hover:text-ink transition-colors duration-150">Products</Link>
             )}
             {user && (user.role === 'STAFF' || user.role === 'SUPER_ADMIN') && (
-              <Link href="/admin/inventory" className="hover:text-brand-600">Inventory</Link>
+              <Link href="/admin/inventory" className="hover:text-ink transition-colors duration-150">Inventory</Link>
             )}
             {user && (user.role === 'STAFF' || user.role === 'SUPER_ADMIN') && (
-              <Link href="/admin/orders" className="hover:text-brand-600">All orders</Link>
+              <Link href="/admin/orders" className="hover:text-ink transition-colors duration-150">Orders</Link>
             )}
             {user && (user.role === 'ACCOUNTANT' || user.role === 'SUPER_ADMIN') && (
-              <Link href="/admin/reports" className="hover:text-brand-600">Reports</Link>
+              <Link href="/admin/reports" className="hover:text-ink transition-colors duration-150">Reports</Link>
             )}
             {user && (user.role === 'ACCOUNTANT' || user.role === 'SUPER_ADMIN') && (
-              <Link href="/admin/payroll" className="hover:text-brand-600">Payroll</Link>
+              <Link href="/admin/payroll" className="hover:text-ink transition-colors duration-150">Payroll</Link>
             )}
             {user?.role === 'SUPER_ADMIN' && (
-              <Link href="/admin/users" className="hover:text-brand-600">Users</Link>
+              <Link href="/admin/users" className="hover:text-ink transition-colors duration-150">Users</Link>
             )}
             {user?.role === 'SUPER_ADMIN' && (
-              <Link href="/admin/audit" className="hover:text-brand-600">Audit</Link>
+              <Link href="/admin/audit" className="hover:text-ink transition-colors duration-150">Audit</Link>
             )}
             {user && (user.role === 'STAFF' || user.role === 'ACCOUNTANT' || user.role === 'SUPER_ADMIN') && (
-              <Link href="/me-payroll" className="hover:text-brand-600">My payroll</Link>
+              <Link href="/me-payroll" className="hover:text-ink transition-colors duration-150">My payroll</Link>
             )}
           </nav>
         </div>
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              <Link href="/profile" className="text-sm text-slate-600 hover:text-brand-600">
-                {user.firstName} ({user.role})
+              <Link href="/profile" className="hidden sm:flex items-center gap-2 text-xs text-ink-2 hover:text-ink transition-colors duration-150">
+                <span className="w-7 h-7 rounded-full bg-gold-tint text-gold-deep flex items-center justify-center text-[11px] font-semibold uppercase">
+                  {user.firstName?.charAt(0) ?? '?'}
+                </span>
+                <span className="hidden lg:inline">{user.firstName} &middot; <span className="uppercase tracking-wider">{user.role}</span></span>
               </Link>
               <Button variant="outline" size="sm" onClick={onLogout}>Log out</Button>
             </>
           ) : (
             <>
-              <Link href="/login"><Button variant="outline" size="sm">Log in</Button></Link>
+              <Link href="/login"><Button variant="ghost" size="sm">Log in</Button></Link>
               <Link href="/register"><Button size="sm">Sign up</Button></Link>
             </>
           )}

@@ -3,9 +3,10 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequestPaginated, apiRequest } from '@/lib/api';
 import type { User } from '@/lib/types';
-import { Card, CardBody, CardHeader, Label, Select } from '@/components/ui';
+import { Card, CardBody, CardHeader, Label, Select, Eyebrow, DisplayHeading } from '@/components/ui';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Container } from '@/components/Container';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 function AdminUsersContent() {
@@ -42,41 +43,49 @@ function AdminUsersContent() {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Users</h1>
+    <div className="space-y-8">
+      <div className="flex items-end justify-between flex-wrap gap-4">
+        <div>
+          <Eyebrow>Access control</Eyebrow>
+          <DisplayHeading as="h1" text="Users." accent="Users" className="mt-3 text-4xl text-ink" />
+        </div>
         <Button onClick={() => setShowCreate(!showCreate)}>{showCreate ? 'Close form' : 'New user'}</Button>
       </div>
 
       {showCreate && (
         <Card>
-          <CardHeader><h2 className="font-semibold">Create internal user</h2></CardHeader>
+          <CardHeader>
+            <Eyebrow>New</Eyebrow>
+            <div className="text-lg font-semibold mt-1 tracking-tight">Create internal user</div>
+          </CardHeader>
           <CardBody>
             <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={(e) => { e.preventDefault(); setError(null); create.mutate(); }}>
               <div>
-                <Label>Email</Label>
-                <Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required />
+                <Label htmlFor="u-email">Email</Label>
+                <Input id="u-email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required />
               </div>
               <div>
-                <Label>Password (initial)</Label>
-                <Input type="password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} required />
+                <Label htmlFor="u-password">Password (initial)</Label>
+                <Input id="u-password" type="password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} required />
               </div>
               <div>
-                <Label>First name</Label>
-                <Input value={form.firstName} onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))} required />
+                <Label htmlFor="u-first">First name</Label>
+                <Input id="u-first" value={form.firstName} onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))} required />
               </div>
               <div>
-                <Label>Last name</Label>
-                <Input value={form.lastName} onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))} required />
+                <Label htmlFor="u-last">Last name</Label>
+                <Input id="u-last" value={form.lastName} onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))} required />
               </div>
               <div>
-                <Label>Role</Label>
-                <Select value={form.role} onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}>
+                <Label htmlFor="u-role">Role</Label>
+                <Select id="u-role" value={form.role} onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}>
                   <option value="STAFF">Staff</option>
                   <option value="ACCOUNTANT">Accountant</option>
                 </Select>
               </div>
-              {error && <div className="md:col-span-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">{error}</div>}
+              {error && (
+                <div role="alert" className="md:col-span-2 text-sm text-red-800 bg-red-50 border border-red-200 rounded-md p-3">{error}</div>
+              )}
               <div className="md:col-span-2">
                 <Button type="submit" disabled={create.isPending}>{create.isPending ? 'Creating...' : 'Create user'}</Button>
               </div>
@@ -85,46 +94,50 @@ function AdminUsersContent() {
         </Card>
       )}
 
-      {isLoading ? (
-        <div className="text-slate-500">Loading...</div>
-      ) : (
+      {isLoading ? <div className="text-ink-2">Loading...</div> : (
         <Card>
           <CardBody className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="text-left text-slate-500">
+              <thead className="text-left text-ink-3">
                 <tr>
-                  <th className="py-2">Name</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th className="py-2 font-medium text-[11px] uppercase tracking-eyebrow">Name</th>
+                  <th className="font-medium text-[11px] uppercase tracking-eyebrow">Email</th>
+                  <th className="font-medium text-[11px] uppercase tracking-eyebrow">Role</th>
+                  <th className="font-medium text-[11px] uppercase tracking-eyebrow">Status</th>
+                  <th className="font-medium text-[11px] uppercase tracking-eyebrow">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {data?.data.map((u) => (
-                  <tr key={u.id} className="border-t">
-                    <td className="py-2">{u.firstName} {u.lastName}</td>
-                    <td>{u.email}</td>
+                  <tr key={u.id} className="border-t border-rule">
+                    <td className="py-3 text-ink">{u.firstName} {u.lastName}</td>
+                    <td className="text-ink-2">{u.email}</td>
                     <td>
-                      <Select
-                        className="w-36"
-                        value={u.role}
-                        onChange={(e) => setRole.mutate({ id: u.id, role: e.target.value })}
-                        disabled={u.role === 'SUPER_ADMIN' || u.role === 'CUSTOMER'}
-                      >
+                      <Select className="w-36" value={u.role}
+                              onChange={(e) => setRole.mutate({ id: u.id, role: e.target.value })}
+                              disabled={u.role === 'SUPER_ADMIN' || u.role === 'CUSTOMER'}>
                         <option value="STAFF">Staff</option>
                         <option value="ACCOUNTANT">Accountant</option>
                         {u.role === 'SUPER_ADMIN' && <option value="SUPER_ADMIN">Super Admin</option>}
                         {u.role === 'CUSTOMER' && <option value="CUSTOMER">Customer</option>}
                       </Select>
                     </td>
-                    <td>{u.isActive ? <span className="text-green-700">Active</span> : <span className="text-red-700">Deactivated</span>}</td>
                     <td>
-                      <Button
-                        size="sm"
-                        variant={u.isActive ? 'outline' : 'primary'}
-                        onClick={() => setStatus.mutate({ id: u.id, isActive: !u.isActive })}
-                      >
+                      {u.isActive ? (
+                        <span className="inline-flex items-center gap-1.5 text-xs text-emerald-700">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                          <span className="uppercase tracking-wider">Active</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 text-xs text-red-700">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
+                          <span className="uppercase tracking-wider">Disabled</span>
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      <Button size="sm" variant={u.isActive ? 'outline' : 'primary'}
+                              onClick={() => setStatus.mutate({ id: u.id, isActive: !u.isActive })}>
                         {u.isActive ? 'Deactivate' : 'Activate'}
                       </Button>
                     </td>
@@ -142,7 +155,9 @@ function AdminUsersContent() {
 export default function AdminUsersPage() {
   return (
     <ProtectedRoute allowRoles={['SUPER_ADMIN']}>
-      <AdminUsersContent />
+      <Container>
+        <AdminUsersContent />
+      </Container>
     </ProtectedRoute>
   );
 }

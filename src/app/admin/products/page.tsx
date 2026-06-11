@@ -3,9 +3,10 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequestPaginated, apiRequest } from '@/lib/api';
 import type { Product } from '@/lib/types';
-import { Card, CardBody, CardHeader, Label, Select } from '@/components/ui';
+import { Card, CardBody, CardHeader, Label, Select, Eyebrow, DisplayHeading } from '@/components/ui';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Container } from '@/components/Container';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { formatNGN } from '@/lib/format';
 
@@ -46,16 +47,12 @@ function AdminProductsContent() {
         stockCount: Number(form.stockCount),
         lowStockThreshold: Number(form.lowStockThreshold),
       };
-      if (editId) {
-        return apiRequest(`/admin/products/${editId}`, { method: 'PATCH', body });
-      }
+      if (editId) return apiRequest(`/admin/products/${editId}`, { method: 'PATCH', body });
       return apiRequest('/admin/products', { method: 'POST', body });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'products'] });
-      setShowCreate(false);
-      setEditId(null);
-      setForm(empty);
+      setShowCreate(false); setEditId(null); setForm(empty);
     },
     onError: (e: any) => setError(e?.message || 'Failed to save'),
   });
@@ -69,22 +66,20 @@ function AdminProductsContent() {
     setEditId(p.id);
     setShowCreate(true);
     setForm({
-      name: p.name,
-      description: p.description,
-      price: p.price,
-      costPrice: '0', // not exposed in public response; staff sets fresh
-      gender: p.gender,
-      category: p.category,
-      brand: p.brand,
+      name: p.name, description: p.description, price: p.price,
+      costPrice: '0', gender: p.gender, category: p.category, brand: p.brand,
       stockCount: String(p.stockCount ?? 0),
       lowStockThreshold: String(p.lowStockThreshold ?? 5),
     });
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Manage products</h1>
+    <div className="space-y-8">
+      <div className="flex items-end justify-between flex-wrap gap-4">
+        <div>
+          <Eyebrow>Catalogue</Eyebrow>
+          <DisplayHeading as="h1" text="Manage products." accent="products" className="mt-3 text-4xl text-ink" />
+        </div>
         <Button onClick={() => { setEditId(null); setForm(empty); setShowCreate(!showCreate); }}>
           {showCreate ? 'Close form' : 'New product'}
         </Button>
@@ -92,40 +87,43 @@ function AdminProductsContent() {
 
       {showCreate && (
         <Card>
-          <CardHeader><h2 className="font-semibold">{editId ? 'Edit product' : 'Create product'}</h2></CardHeader>
+          <CardHeader>
+            <Eyebrow>{editId ? 'Edit' : 'New'}</Eyebrow>
+            <div className="text-lg font-semibold mt-1 tracking-tight">{editId ? 'Edit product' : 'Create product'}</div>
+          </CardHeader>
           <CardBody>
             <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={(e) => { e.preventDefault(); setError(null); submit.mutate(); }}>
               <div className="md:col-span-2">
-                <Label>Name</Label>
-                <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required />
+                <Label htmlFor="p-name">Name</Label>
+                <Input id="p-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required />
               </div>
               <div className="md:col-span-2">
-                <Label>Description</Label>
-                <Input value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} required />
+                <Label htmlFor="p-description">Description</Label>
+                <Input id="p-description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} required />
               </div>
               <div>
-                <Label>Price (NGN)</Label>
-                <Input type="number" step="0.01" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} required />
+                <Label htmlFor="p-price">Price (NGN)</Label>
+                <Input id="p-price" type="number" step="0.01" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} required />
               </div>
               <div>
-                <Label>Cost price (NGN)</Label>
-                <Input type="number" step="0.01" value={form.costPrice} onChange={(e) => setForm((f) => ({ ...f, costPrice: e.target.value }))} required />
+                <Label htmlFor="p-cost">Cost price (NGN)</Label>
+                <Input id="p-cost" type="number" step="0.01" value={form.costPrice} onChange={(e) => setForm((f) => ({ ...f, costPrice: e.target.value }))} required />
               </div>
               <div>
-                <Label>Brand</Label>
-                <Input value={form.brand} onChange={(e) => setForm((f) => ({ ...f, brand: e.target.value }))} required />
+                <Label htmlFor="p-brand">Brand</Label>
+                <Input id="p-brand" value={form.brand} onChange={(e) => setForm((f) => ({ ...f, brand: e.target.value }))} required />
               </div>
               <div>
-                <Label>Gender</Label>
-                <Select value={form.gender} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}>
+                <Label htmlFor="p-gender">Gender</Label>
+                <Select id="p-gender" value={form.gender} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}>
                   <option value="MALE">Male</option>
                   <option value="FEMALE">Female</option>
                   <option value="UNISEX">Unisex</option>
                 </Select>
               </div>
               <div>
-                <Label>Category</Label>
-                <Select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}>
+                <Label htmlFor="p-category">Category</Label>
+                <Select id="p-category" value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}>
                   <option value="SHOES">Shoes</option>
                   <option value="LACES">Laces</option>
                   <option value="POLISH">Polish</option>
@@ -133,14 +131,16 @@ function AdminProductsContent() {
                 </Select>
               </div>
               <div>
-                <Label>Stock count</Label>
-                <Input type="number" value={form.stockCount} onChange={(e) => setForm((f) => ({ ...f, stockCount: e.target.value }))} />
+                <Label htmlFor="p-stock">Stock count</Label>
+                <Input id="p-stock" type="number" value={form.stockCount} onChange={(e) => setForm((f) => ({ ...f, stockCount: e.target.value }))} />
               </div>
               <div>
-                <Label>Low-stock threshold</Label>
-                <Input type="number" value={form.lowStockThreshold} onChange={(e) => setForm((f) => ({ ...f, lowStockThreshold: e.target.value }))} />
+                <Label htmlFor="p-threshold">Low-stock threshold</Label>
+                <Input id="p-threshold" type="number" value={form.lowStockThreshold} onChange={(e) => setForm((f) => ({ ...f, lowStockThreshold: e.target.value }))} />
               </div>
-              {error && <div role="alert" className="md:col-span-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">{error}</div>}
+              {error && (
+                <div role="alert" className="md:col-span-2 text-sm text-red-800 bg-red-50 border border-red-200 rounded-md p-3">{error}</div>
+              )}
               <div className="md:col-span-2">
                 <Button type="submit" disabled={submit.isPending}>
                   {submit.isPending ? 'Saving...' : (editId ? 'Save changes' : 'Create product')}
@@ -152,31 +152,31 @@ function AdminProductsContent() {
       )}
 
       {isLoading ? (
-        <div className="text-slate-500">Loading...</div>
+        <div className="text-ink-2">Loading...</div>
       ) : (
         <Card>
           <CardBody className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="text-left text-slate-500">
+              <thead className="text-left text-ink-3">
                 <tr>
-                  <th className="py-2">Name</th>
-                  <th>Brand</th>
-                  <th>Category</th>
-                  <th>Gender</th>
-                  <th className="text-right">Price</th>
-                  <th className="text-right">Stock</th>
+                  <th className="py-2 font-medium text-[11px] uppercase tracking-eyebrow">Name</th>
+                  <th className="font-medium text-[11px] uppercase tracking-eyebrow">Brand</th>
+                  <th className="font-medium text-[11px] uppercase tracking-eyebrow">Category</th>
+                  <th className="font-medium text-[11px] uppercase tracking-eyebrow">Gender</th>
+                  <th className="text-right font-medium text-[11px] uppercase tracking-eyebrow">Price</th>
+                  <th className="text-right font-medium text-[11px] uppercase tracking-eyebrow">Stock</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
                 {data?.data.map((p) => (
-                  <tr key={p.id} className="border-t">
-                    <td className="py-2">{p.name}</td>
-                    <td>{p.brand}</td>
-                    <td>{p.category}</td>
-                    <td>{p.gender}</td>
-                    <td className="text-right">{formatNGN(p.price)}</td>
-                    <td className="text-right">{p.stockCount ?? '\u2014'}</td>
+                  <tr key={p.id} className="border-t border-rule">
+                    <td className="py-3 text-ink">{p.name}</td>
+                    <td className="text-ink-2">{p.brand}</td>
+                    <td className="text-ink-2">{p.category}</td>
+                    <td className="text-ink-2">{p.gender}</td>
+                    <td className="text-right tabular text-ink">{formatNGN(p.price)}</td>
+                    <td className="text-right tabular text-ink-2">{p.stockCount ?? '\u2014'}</td>
                     <td className="text-right space-x-2">
                       <Button variant="outline" size="sm" onClick={() => startEdit(p)}>Edit</Button>
                       <Button variant="danger" size="sm" onClick={() => { if (confirm(`Delete ${p.name}?`)) del.mutate(p.id); }}>Delete</Button>
@@ -195,7 +195,9 @@ function AdminProductsContent() {
 export default function AdminProductsPage() {
   return (
     <ProtectedRoute allowRoles={['STAFF', 'SUPER_ADMIN']}>
-      <AdminProductsContent />
+      <Container>
+        <AdminProductsContent />
+      </Container>
     </ProtectedRoute>
   );
 }
