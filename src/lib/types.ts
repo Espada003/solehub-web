@@ -22,6 +22,16 @@ export interface AuthTokens {
   user: User;
 }
 
+// v1.1 — variants for shoes
+export interface ProductVariant {
+  id: string;
+  size: string;
+  sku: string;
+  inStock: boolean;
+  stockCount?: number;
+  lowStockThreshold?: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -32,6 +42,9 @@ export interface Product {
   brand: string;
   imageUrl: string | null;
   inStock: boolean;
+  hasVariants?: boolean;
+  aggregateStock?: number;
+  variants?: ProductVariant[];
   stockCount?: number;
   lowStockThreshold?: number;
   createdAt: string;
@@ -39,6 +52,8 @@ export interface Product {
 
 export interface CartLine {
   productId: string;
+  variantId?: string | null;
+  size?: string | null;
   name: string;
   brand: string;
   imageUrl: string | null;
@@ -69,6 +84,8 @@ export interface ShippingAddress {
 
 export interface OrderItem {
   productId: string;
+  variantId?: string | null;
+  size?: string | null;
   name: string;
   unitPrice: number;
   quantity: number;
@@ -141,4 +158,32 @@ export interface AuditEntry {
 
 export interface ApiErrorBody {
   error: { code: string; message: string; details?: unknown };
+}
+
+// v1.1 admin variant management
+export interface AdminVariant {
+  id: string;
+  productId: string;
+  size: string;
+  sku: string;
+  stockCount: number;
+  lowStockThreshold: number;
+  lastRestockedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// v1.1 low-stock row — kind="product" for non-shoes, kind="variant" for shoes
+export interface LowStockRow {
+  kind: 'product' | 'variant';
+  id: string;
+  productId: string;
+  variantId: string | null;
+  name: string;
+  size: string | null;
+  brand: string;
+  category: ProductCategory;
+  stockCount: number;
+  lowStockThreshold: number;
+  lastRestockedAt: string | null;
 }

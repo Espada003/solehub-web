@@ -15,14 +15,19 @@ function CartContent() {
   const { data, isLoading } = useQuery({ queryKey: ['cart'], queryFn: () => apiRequest<Cart>('/cart') });
 
   const update = useMutation({
-    mutationFn: ({ productId, quantity }: { productId: string; quantity: number }) =>
-      apiRequest(`/cart/items/${productId}`, { method: 'PATCH', body: { quantity } }),
+    mutationFn: ({ productId, variantId, quantity }: { productId: string; variantId?: string | null; quantity: number }) => {
+      const body: any = { quantity };
+      if (variantId) body.variantId = variantId;
+      return apiRequest(`/cart/items/${productId}`, { method: 'PATCH', body });
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['cart'] }),
   });
 
   const remove = useMutation({
-    mutationFn: ({ productId }: { productId: string }) =>
-      apiRequest(`/cart/items/${productId}`, { method: 'DELETE' }),
+    mutationFn: ({ productId, variantId }: { productId: string; variantId?: string | null }) => {
+      const qs = variantId ? `?variantId=${variantId}` : '';
+      return apiRequest(`/cart/items/${productId}${qs}`, { method: 'DELETE' });
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['cart'] }),
   });
 
@@ -41,39 +46,51 @@ function CartContent() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2 space-y-3">
-        {data.items.map((line) => (
-          <Card key={line.productId}>
-            <CardBody>
-              <div className="flex items-center gap-4">
-                <div className="w-20 h-20 bg-gold-tint/40 rounded-md flex-shrink-0 overflow-hidden border border-rule">
-                  {line.imageUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={line.imageUrl} alt={line.name} className="w-full h-full object-cover" />
-                  )}
+        {data.items.map((line) => {
+          const lineKey = `${line.productId}-${line.variantId ?? 'none'}`;
+          return (
+            <Card key={lineKey}>
+              <CardBody>
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-20 bg-gold-tint/40 rounded-md flex-shrink-0 overflow-hidden border border-rule">
+                    {line.imageUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={line.imageUrl} alt={line.name} className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-ink truncate">{line.name}</div>
+                    <div className="text-[11px] uppercase tracking-eyebrow text-ink-3 mt-0.5">
+                      {line.brand}
+                      {line.size && <> &middot; Size {line.size}</>}
+                    </div>
+                    <div className="text-sm text-ink-2 mt-1 tabular">{formatNGN(line.unitPrice)} each</div>
+                  </div>
+                  <div className="w-20">
+                    <Input
+                      type="number"
+                      min={1}
+                      max={line.stockCount}
+                      value={line.quantity}
+                      onChange={(e) => {
+                        const q = Math.max(1, Number(e.target.value) || 1);
+                        update.mutate({ productId: line.productId, variantId: line.variantId, quantity: q });
+                      }}
+                    />
+                  </div>
+                  <div className="text-right w-28 font-semibold text-ink tabular">{formatNGN(line.lineTotal)}</div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => remove.mutate({ productId: line.productId, variantId: line.variantId })}
+                  >
+                    Remove
+                  </Button>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-ink truncate">{line.name}</div>
-                  <div className="text-[11px] uppercase tracking-eyebrow text-ink-3 mt-0.5">{line.brand}</div>
-                  <div className="text-sm text-ink-2 mt-1 tabular">{formatNGN(line.unitPrice)} each</div>
-                </div>
-                <div className="w-20">
-                  <Input
-                    type="number"
-                    min={1}
-                    max={line.stockCount}
-                    value={line.quantity}
-                    onChange={(e) => {
-                      const q = Math.max(1, Number(e.target.value) || 1);
-                      update.mutate({ productId: line.productId, quantity: q });
-                    }}
-                  />
-                </div>
-                <div className="text-right w-28 font-semibold text-ink tabular">{formatNGN(line.lineTotal)}</div>
-                <Button variant="ghost" size="sm" onClick={() => remove.mutate({ productId: line.productId })}>Remove</Button>
-              </div>
-            </CardBody>
-          </Card>
-        ))}
+              </CardBody>
+            </Card>
+          );
+        })}
       </div>
       <div>
         <Card>

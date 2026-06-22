@@ -8,5 +8,3 @@ out/
 .DS_Store
 .vscode/
 .idea/
-
-tsconfig.tsbuildinfo

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/Container';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { VariantsPanel } from '@/components/VariantsPanel';
 import { formatNGN } from '@/lib/format';
 
 interface ProductForm {
@@ -131,8 +132,8 @@ function AdminProductsContent() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="p-stock">Stock count</Label>
-                <Input id="p-stock" type="number" value={form.stockCount} onChange={(e) => setForm((f) => ({ ...f, stockCount: e.target.value }))} />
+                <Label htmlFor="p-stock">Stock count {form.category === 'SHOES' && <span className="text-ink-3 normal-case tracking-normal">(aggregated from variants)</span>}</Label>
+                <Input id="p-stock" type="number" value={form.stockCount} onChange={(e) => setForm((f) => ({ ...f, stockCount: e.target.value }))} disabled={form.category === 'SHOES' && !!editId} />
               </div>
               <div>
                 <Label htmlFor="p-threshold">Low-stock threshold</Label>
@@ -149,6 +150,11 @@ function AdminProductsContent() {
             </form>
           </CardBody>
         </Card>
+      )}
+
+      {/* Variant management — only when editing a shoe */}
+      {showCreate && editId && form.category === 'SHOES' && (
+        <VariantsPanel productId={editId} />
       )}
 
       {isLoading ? (

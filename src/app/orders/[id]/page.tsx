@@ -94,6 +94,7 @@ function OrderDetail() {
             <thead className="text-left text-ink-3">
               <tr>
                 <th className="py-2 font-medium text-[11px] uppercase tracking-eyebrow">Product</th>
+                <th className="font-medium text-[11px] uppercase tracking-eyebrow">Size</th>
                 <th className="text-right font-medium text-[11px] uppercase tracking-eyebrow">Unit price</th>
                 <th className="text-right font-medium text-[11px] uppercase tracking-eyebrow">Qty</th>
                 <th className="text-right font-medium text-[11px] uppercase tracking-eyebrow">Line total</th>
@@ -101,8 +102,9 @@ function OrderDetail() {
             </thead>
             <tbody>
               {order.items?.map((it) => (
-                <tr key={it.productId} className="border-t border-rule">
+                <tr key={`${it.productId}-${it.variantId ?? 'none'}`} className="border-t border-rule">
                   <td className="py-3 text-ink">{it.name}</td>
+                  <td className="text-ink-2">{it.size ?? '\u2014'}</td>
                   <td className="text-right tabular text-ink-2">{formatNGN(it.unitPrice)}</td>
                   <td className="text-right tabular text-ink-2">{it.quantity}</td>
                   <td className="text-right tabular text-ink font-medium">{formatNGN(it.lineTotal)}</td>
