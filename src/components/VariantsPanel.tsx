@@ -30,9 +30,7 @@ export function VariantsPanel({ productId }: { productId: string }) {
 
   const { data: variants, isLoading } = useQuery({
     queryKey: ['admin', 'variants', productId],
-    queryFn: () =>
-      apiRequest<{ data: AdminVariant[] }>(`/admin/products/${productId}/variants`)
-        .then((r) => r.data),
+    queryFn: () => apiRequest<AdminVariant[]>(`/admin/products/${productId}/variants`),
   });
 
   const create = useMutation({

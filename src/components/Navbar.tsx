@@ -32,7 +32,7 @@ export function Navbar() {
               </>
             )}
             {user && (user.role === 'STAFF' || user.role === 'SUPER_ADMIN') && (
-              <Link href="/admin/products" className="hover:text-ink transition-colors duration-150">Products</Link>
+              <Link href="/admin/products" className="hover:text-ink transition-colors duration-150">Catalogue</Link>
             )}
             {user && (user.role === 'STAFF' || user.role === 'SUPER_ADMIN') && (
               <Link href="/admin/inventory" className="hover:text-ink transition-colors duration-150">Inventory</Link>
